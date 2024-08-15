@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: vulnerable_lab_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: vulnerable_db
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  app:
+    build: ./app
+    container_name: vulnerable_lab_app
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/vulnerable_db
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  adminer:
+    image: adminer
+    container_name: vulnerable_lab_adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
